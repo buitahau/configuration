@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kibana
+  name: kibana-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+        - image: kibana:7.8.0
+          name: kibana
+          env:
+            - name: ELASTICSEARCH_HOSTS
+              value: http://es-service:9200
+          ports:
+            - containerPort: 5601
+              name: ui
+              protocol: TCP
