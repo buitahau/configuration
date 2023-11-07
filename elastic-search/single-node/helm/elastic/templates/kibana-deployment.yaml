@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- include "kibana.labels" . | nindent 2 }}
+  name: kibana-deployment
+spec:
+  replicas: {{ .Values.kibana.replicaCount }}
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+        - image: "{{ .Values.kibana.image.repository }}:{{ .Values.kibana.image.tag }}"
+          imagePullPolicy: {{ .Values.kibana.image.pullPolicy }}
+          name:  {{ .Values.kibana.name }}
+          env:
+            - name: ELASTICSEARCH_HOSTS
+              value: {{ .Values.kibana.env.elasticsearchHosts }}
+          ports:
+            - containerPort: {{ .Values.kibana.service.port }}
+              name: ui
+              protocol: TCP

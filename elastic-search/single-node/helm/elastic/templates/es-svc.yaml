@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.elasticsearch.service.name }}
+  {{- include "elastic.labels" . | nindent 2 }}
+spec:
+  type: {{ .Values.elasticsearch.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.elasticsearch.service.port }}
+      protocol: TCP
+  selector:
+    app: elasticsearch

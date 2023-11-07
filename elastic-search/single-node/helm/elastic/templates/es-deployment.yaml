@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  {{- include "elastic.labels" . | nindent 2 }}
+  name: es-deployment
+spec:
+  replicas: {{ .Values.elasticsearch.replicaCount }}
+  selector:
+    matchLabels:
+      app: elasticsearch
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      {{- include "elastic.labels" . | nindent 6 }}
+    spec:
+      containers:
+        - image: "{{ .Values.elasticsearch.image.repository }}:{{ .Values.elasticsearch.image.tag }}"
+          imagePullPolicy: {{ .Values.elasticsearch.image.pullPolicy }}
+          name: {{ .Values.elasticsearch.name }}
+          ports:
+            - containerPort: 9200
+              name: http
+              protocol: TCP
+          env:
+            - name: discovery.type
+              value: single-node
+          volumeMounts:
+            - name: {{ .Values.elasticsearch.volumeMounts.name }}
+              mountPath: {{ .Values.elasticsearch.volumeMounts.mountPath }}
+          livenessProbe:
+            httpGet:
+              port: http
+              path: /_cluster/health
+            initialDelaySeconds: 40
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: {{ .Values.elasticsearch.volumeMounts.name }}
+          emptyDir: {}

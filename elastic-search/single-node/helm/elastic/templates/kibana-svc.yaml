@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  {{- include "kibana.labels" . | nindent 2 }}
+  name: {{ .Values.kibana.service.name }}
+spec:
+  ports:
+    - port: {{ .Values.kibana.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.kibana.service.port }}
+      nodePort: {{ .Values.kibana.service.nodePort }}
+  selector:
+    app: kibana
+  type: {{ .Values.kibana.service.type }}
